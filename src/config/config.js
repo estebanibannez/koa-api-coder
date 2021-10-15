@@ -1,3 +1,3 @@
 module.exports = {
-    MONGOURL : "mongodb+srv://tester:8O7gGjqD5sQOU7Tn@clusterkoa.ckqvo.mongodb.net/koaApiDatabase?retryWrites=true&w=majority"
+    MONGOURL : "mongodb+srv://root:root@cluster0.jdgnu.mongodb.net/chatcoder?retryWrites=true&w=majority"
 }

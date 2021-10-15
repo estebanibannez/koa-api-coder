@@ -1,31 +1,31 @@
-const Model = require("../models/schemas/product.schema");
-const ProductDAO = require("../dao/product.dao");
-
+const ProductDAO = require('../dao/product.dao');
+const Model = new ProductDAO();
 class ProductService {
-  getProducts() {
-    const result = await ProductDAO.findAll();
-    return result;
-  }
+	constructor() {
+	}
+	async getProducts() {
+		return await Model.findAll();
+	}
 
-  getProductById(id) {
-    const result = await ProductDAO.findById();
-    return result;
-  }
+	async getProductById(id) {
+		const result = await Model.findById(id);
+		return result;
+	}
 
-  postProduct(product) {
-    const result = await ProductDAO.create(product);
-    return result;
-  }
+	async postProduct(data) {
+		const result = await Model.create(data);
+		return result;
+	}
 
-  updateProduct(id, product) {
-    const result = await ProductDAO.findOneAndUpdate(id, product);
-    return result;
-  }
+	async updateProduct(id, product) {
+		const result = await Model.update(id, product);
+		return result;
+	}
 
-  deleteProduct(id) {
-    const result = await ProductDAO.deleteOne(id);
-    return result;
-  }
+	async deleteProduct(id) {
+		const result = await Model.delete(id);
+		return result;
+	}
 }
 
 module.exports = ProductService;

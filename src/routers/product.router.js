@@ -1,119 +1,118 @@
 // books.js
 const Router = require('koa-router');
+const Service = require('../services/product.service');
 
 // Prefix all routes with /books
 const router = new Router({
-	prefix: '/product'
+	prefix: '/api/v1/productos',
 });
-
-let books = [
-	{ id: 101, name: 'Fight Club', author: 'Chuck Palahniuk' },
-	{ id: 102, name: 'Sharp Objects', author: 'Gillian Flynn' },
-	{ id: 103, name: 'Frankenstein', author: 'Mary Shelley' },
-	{ id: 104, name: 'Into The Willd', author: 'Jon Krakauer' }
-];
-
 
 /* ---------------------- Routes ----------------------- */
 /* API REST Get All */
-router.get('/', (ctx, next) => {
+router.get('/', async (ctx, next) => {
+	const service = new Service();
+	const response = await service.getProducts();
+
 	ctx.body = {
 		status: 'success',
-		message: books
+		message: response,
 	};
 	next();
 });
 
 /* API REST Get x ID */
-router.get('/:id', (ctx, next) => {
-	let getCurrentBook = books.filter(function(book) {
-		if (book.id == ctx.params.id) {
-			return true;
-		}
-	});
-
-	if (getCurrentBook.length) {
-		ctx.body = getCurrentBook[0];
+router.get('/:id', async (ctx, next) => {
+	const service = new Service();
+	const response = await service.getProductById(ctx.params.id);
+	if (response) {
+		ctx.body = {
+			status: 'success',
+			message: response,
+		};
 	} else {
 		ctx.response.status = 404;
 		ctx.body = {
 			status: 'error!',
-			message: 'Book Not Found with that id!'
+			message: 'productos Not Found with that id!',
 		};
 	}
+
 	next();
 });
 
 /* API REST Post */
-router.post('/new', (ctx, next) => {
+router.post('/', async (ctx, next) => {
 	// Check if any of the data field not empty
-	if (
-		!ctx.request.body.id ||
-		!ctx.request.body.name ||
-		!ctx.request.body.author
-	) {
+	if (!ctx.request.body.nombre || !ctx.request.body.codigo) {
 		ctx.response.status = 400;
 		ctx.body = {
 			status: 'error',
-			message: 'Please enter the data'
-        }
-	} else {
-		let newBook = books.push({
-			id: ctx.request.body.id,
-			name: ctx.request.body.name,
-			author: ctx.request.body.author
-		});
-		ctx.response.status = 201;
-		ctx.body = {
-			status: 'success',
-			message: `New book added with id: ${ctx.request.body.id} & name: ${
-				ctx.request.body.name
-			}`
+			message: 'Defina un nombre y codigo como minimo.',
 		};
+	} else {
+		const service = new Service();
+		const response = await service.postProduct(ctx.request.body);
+		if (response) {
+			ctx.body = {
+				status: 'success',
+				message: response,
+			};
+		} else {
+			ctx.response.status = 404;
+			ctx.body = {
+				status: 'error!',
+				message: 'no se pudo guardar en bd el producto',
+			};
+		}
 	}
 	next();
 });
 
 /* API REST Put */
-router.put('/update/:id', (ctx, next) => {
+router.put('/:id', async (ctx, next) => {
 	// Check if any of the data field not empty
-	if (
-		!ctx.request.body.id ||
-		!ctx.request.body.name ||
-		!ctx.request.body.author
-	) {
+	if (!ctx.request.body.nombre || !ctx.request.body.codigo) {
 		ctx.response.status = 400;
 		ctx.body = {
 			status: 'error',
-			message: 'Please enter the data'
-        }
-	} else {
-        let id = ctx.params.id
-        let index = books.findIndex(book => book.id == id)
-		books.splice(index,1,ctx.request.body)
-		ctx.response.status = 201;
-		ctx.body = {
-			status: 'success',
-			message: `New book updated with id: ${ctx.request.body.id} & name: ${
-				ctx.request.body.name
-			}`
+			message: 'Please enter the data',
 		};
+	} else {
+		const service = new Service();
+		const response = await service.updateProduct(ctx.params.id, ctx.request.body);
+		if (response) {
+			ctx.body = {
+				status: 'Producto actualizado éxitosamente!',
+				message: response,
+			};
+		} else {
+			ctx.response.status = 404;
+			ctx.body = {
+				status: 'error!',
+				message: 'no se pudo actualizar en bd el producto',
+			};
+		}
 	}
 	next();
 });
 
 /* API REST Delete */
-router.delete('/delete/:id', (ctx, next) => {
-    let id = ctx.params.id
-	let index = books.findIndex(book => book.id == id)
-    books.splice(index,1)
-    ctx.response.status = 200;
-    ctx.body = {
-        status: 'success',
-        message: `Book deleted with id: ${id}`
-    };
+router.delete('/:id', async(ctx, next) => {
+	const service = new Service();
+		const response = await service.deleteProduct(ctx.params.id);
+		if (response) {
+			ctx.body = {
+				status: 'success delete',
+				message: response,
+			};
+		} else {
+			ctx.response.status = 404;
+			ctx.body = {
+				status: 'error!',
+				message: 'no se pudo eliminar de la bd el producto',
+			};
+		}
 	next();
 });
-
 
 module.exports = router;
