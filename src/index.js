@@ -12,10 +12,11 @@ require("./db/conection");
 app.use(koaBody());
 
 // Require the Router we defined in books.js
-let { ProductRouter } = require("./routers/index");
+let { ProductRouter, MessageRouter } = require("./routers/index");
 
 // Use the Router on the sub route /books
 app.use(ProductRouter.routes());
+app.use(MessageRouter.routes());
 
 // Server listen
 const PORT = 8080;
